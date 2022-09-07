@@ -1,5 +1,5 @@
 {
-  "name": "starterkits",
+  "name": "mesto",
   "version": "1.0.0",
   "description": "backend mesto project",
   "main": "dist/app.js",

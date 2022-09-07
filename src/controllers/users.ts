@@ -1,24 +1,71 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 
-export const getUsers = (req: Request, res: Response) => {
+export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   return User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
+    .catch(next);
 };
 
-export const getUserById = (req: Request, res: Response) => {
-  const { _id } = req.body;
+export const getUserById = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const _id = req.params.userId;
 
   return User.findOne({ _id })
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
+    .then((user) => {
+      if (!user) throw new Error("requested id not found.");
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
-export const createUser = (req: Request, res: Response) => {
+export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar } = req.body;
 
   return User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
+    .catch(next);
+};
+
+export const updateProfile = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { name, about } = req.body;
+  const _id = req.user._id;
+
+  return User.findByIdAndUpdate(
+    _id,
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
+    .then((user) => res.send({ data: user }))
+    .catch(next);
+};
+
+export const updateAvatar = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { avatar } = req.body;
+  const _id = req.user._id;
+
+  return User.findByIdAndUpdate(
+    _id,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
+    .then((user) => res.send({ data: user }))
+    .catch(next);
 };
