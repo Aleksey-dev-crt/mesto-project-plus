@@ -21,6 +21,8 @@
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
     "implicit-arrow-linebreak": 0,
+    "object-curly-newline": "off",
+    "consistent-return": "off",
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-shadow": "off",
     "no-unused-vars": "off",
