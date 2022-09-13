@@ -5,6 +5,8 @@ import { login, createUser } from './controllers/users';
 import usersRouter from './routes/users';
 import cardsRouter from './routes/cards';
 import errorHandler from './utils/errors';
+import auth from './middlewares/auth';
+import { requestLogger, errorLogger } from './middlewares/logger';
 
 const { PORT = 3000 } = process.env;
 const app: Application = express();
@@ -16,21 +18,19 @@ declare module 'express-serve-static-core' {
   }
 }
 
-// app.use((req: Request, res: Response, next: NextFunction) => {
-//   req.user = {
-//     _id: '6315da62af685a16388fbe22',
-//   };
-
-//   next();
-// });
-
 mongoose.connect('mongodb://localhost:27017/mestodb');
+
+app.use(requestLogger);
 
 app.post('/signin', login);
 app.post('/signup', createUser);
 
+app.use(auth);
+
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
+
+app.use(errorLogger);
 
 app.use(errorHandler);
 

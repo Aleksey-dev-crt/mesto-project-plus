@@ -19,6 +19,17 @@ export const getUserById = (req: Request, res: Response, next: NextFunction) => 
     .catch(next);
 };
 
+export const getUser = (req: Request, res: Response, next: NextFunction) => {
+  const _id = req.user;
+
+  return User.findOne({ _id })
+    .then((user) => {
+      if (!user) throw new Error('requested id not found.');
+      res.send({ data: user });
+    })
+    .catch(next);
+};
+
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar, email, password } = req.body;
 

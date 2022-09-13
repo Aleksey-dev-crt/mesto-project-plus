@@ -5,17 +5,13 @@ interface SessionRequest extends Request {
   user: string | JwtPayload;
 }
 
-const handleAuthError = (res: Response) => {
-  res.status(401).send({ message: 'Необходима авторизация' });
-};
-
 const extractBearerToken = (header: string) => header.replace('Bearer ', '');
 
 export default (req: SessionRequest, res: Response, next: NextFunction): void => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return handleAuthError(res);
+    throw new Error('Authorization error.');
   }
 
   const token = extractBearerToken(authorization);
@@ -24,7 +20,7 @@ export default (req: SessionRequest, res: Response, next: NextFunction): void =>
   try {
     payload = jwt.verify(token, 'super-strong-secret');
   } catch (err) {
-    return handleAuthError(res);
+    throw new Error('Authorization error.');
   }
 
   req.user = payload;

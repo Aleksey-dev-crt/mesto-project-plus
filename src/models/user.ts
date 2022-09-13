@@ -32,11 +32,16 @@ const userSchema = new Schema<IUser, UserModel>({
   },
   avatar: {
     type: String,
+    validate: {
+      validator: (v: string) => /\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/.test(v),
+      message: 'Invalid url.',
+    },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
     unique: true,
+    index: true,
     required: true,
     validate: {
       validator: (v: string) => validator.isEmail(v),
@@ -46,25 +51,28 @@ const userSchema = new Schema<IUser, UserModel>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
 });
 
 userSchema.static(
   'findUserByCredentials',
   function findUserByCredentials(email: string, password: string) {
-    return this.findOne({ email }).then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          return Promise.reject(new Error('Неправильные почта или пароль'));
+    return this.findOne({ email })
+      .select('+password')
+      .then((user) => {
+        if (!user) {
+          return Promise.reject(new Error('Wrong email or password.'));
         }
 
-        return user;
+        return bcrypt.compare(password, user.password).then((matched) => {
+          if (!matched) {
+            return Promise.reject(new Error('Wrong email or password.'));
+          }
+
+          return user;
+        });
       });
-    });
   },
 );
 
