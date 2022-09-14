@@ -1,10 +1,11 @@
 import express, { Application } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
+import { errors } from 'celebrate';
 import mongoose from 'mongoose';
 import { login, createUser } from './controllers/users';
 import usersRouter from './routes/users';
 import cardsRouter from './routes/cards';
-import errorHandler from './utils/errors';
+import errorHandler from './middlewares/error';
 import auth from './middlewares/auth';
 import { requestLogger, errorLogger } from './middlewares/logger';
 
@@ -32,6 +33,7 @@ app.use('/cards', cardsRouter);
 
 app.use(errorLogger);
 
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {

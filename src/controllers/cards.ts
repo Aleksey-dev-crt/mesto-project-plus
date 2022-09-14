@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 import Card from '../models/card';
+import NotFoundError from '../errors/not-found-error';
+import ForbiddenError from '../errors/forbidden-error';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) =>
   Card.find({})
@@ -15,18 +18,22 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-export const deleteCard = (req: Request, res: Response, next: NextFunction) =>
+export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
+  const { _id } = req.user as JwtPayload;
+
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if (!card) throw new Error('requested id not found.');
+      if (!card) throw new NotFoundError('requested id not found.');
+      if (card.owner.valueOf() !== _id) throw new ForbiddenError('not allowed action.');
       res.send({ data: card });
     })
     .catch(next);
+};
 
 export const likeCard = (req: Request, res: Response, next: NextFunction) =>
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user } }, { new: true })
     .then((card) => {
-      if (!card) throw new Error('requested id not found.');
+      if (!card) throw new NotFoundError('requested id not found.');
       res.send({ data: card });
     })
     .catch(next);
@@ -34,7 +41,7 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) =>
 export const dislikeCard = (req: Request, res: Response, next: NextFunction) =>
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: Object(req.user) } }, { new: true })
     .then((card) => {
-      if (!card) throw new Error('requested id not found.');
+      if (!card) throw new NotFoundError('requested id not found.');
       res.send({ data: card });
     })
     .catch(next);

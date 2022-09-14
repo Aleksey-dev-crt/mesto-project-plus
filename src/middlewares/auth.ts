@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import AuthorizationError from '../errors/not-found-error';
 
 interface SessionRequest extends Request {
   user: string | JwtPayload;
@@ -11,7 +12,7 @@ export default (req: SessionRequest, res: Response, next: NextFunction): void =>
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new Error('Authorization error.');
+    throw new AuthorizationError('Authorization error.');
   }
 
   const token = extractBearerToken(authorization);
@@ -20,7 +21,7 @@ export default (req: SessionRequest, res: Response, next: NextFunction): void =>
   try {
     payload = jwt.verify(token, 'super-strong-secret');
   } catch (err) {
-    throw new Error('Authorization error.');
+    throw new AuthorizationError('Authorization error.');
   }
 
   req.user = payload;

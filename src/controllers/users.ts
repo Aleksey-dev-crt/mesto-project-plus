@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
+import NotFoundError from '../errors/not-found-error';
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) =>
   User.find({})
@@ -13,7 +14,7 @@ export const getUserById = (req: Request, res: Response, next: NextFunction) => 
 
   return User.findOne({ _id })
     .then((user) => {
-      if (!user) throw new Error('requested id not found.');
+      if (!user) throw new NotFoundError('requested id not found.');
       res.send({ data: user });
     })
     .catch(next);
@@ -24,7 +25,7 @@ export const getUser = (req: Request, res: Response, next: NextFunction) => {
 
   return User.findOne({ _id })
     .then((user) => {
-      if (!user) throw new Error('requested id not found.');
+      if (!user) throw new NotFoundError('requested id not found.');
       res.send({ data: user });
     })
     .catch(next);

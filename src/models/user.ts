@@ -1,6 +1,8 @@
 import { model, Model, Schema, Document } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
+import AuthorizationError from '../errors/authorization-error';
+import validationUrl from '../utils/validation';
 
 interface IUser {
   name: string;
@@ -33,7 +35,7 @@ const userSchema = new Schema<IUser, UserModel>({
   avatar: {
     type: String,
     validate: {
-      validator: (v: string) => /\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/.test(v),
+      validator: (v: string) => validationUrl.test(v),
       message: 'Invalid url.',
     },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
@@ -62,12 +64,12 @@ userSchema.static(
       .select('+password')
       .then((user) => {
         if (!user) {
-          return Promise.reject(new Error('Wrong email or password.'));
+          return Promise.reject(new AuthorizationError('Wrong email or password.'));
         }
 
         return bcrypt.compare(password, user.password).then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Wrong email or password.'));
+            return Promise.reject(new AuthorizationError('Wrong email or password.'));
           }
 
           return user;

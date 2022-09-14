@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import validationUrl from '../utils/validation';
 
 interface ICard {
   name: string;
@@ -17,6 +18,10 @@ const cardSchema = new Schema<ICard>({
   },
   link: {
     type: String,
+    validate: {
+      validator: (v: string) => validationUrl.test(v),
+      message: 'Invalid url.',
+    },
     required: true,
   },
   owner: {
