@@ -16,10 +16,18 @@ export const cardValidator = celebrate({
     .unknown(true),
 });
 
-export const idValidator = celebrate({
+export const cardIdValidator = celebrate({
   params: Joi.object()
     .keys({
       cardId: Joi.string().custom(idValidation, 'id validation').required(),
+    })
+    .unknown(true),
+});
+
+export const userIdValidator = celebrate({
+  params: Joi.object()
+    .keys({
+      userId: Joi.string().custom(idValidation, 'id validation').required(),
     })
     .unknown(true),
 });

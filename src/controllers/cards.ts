@@ -25,8 +25,7 @@ export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
     .then((card) => {
       if (!card) throw new NotFoundError('requested id not found.');
       if (card.owner.valueOf() !== _id) throw new ForbiddenError('not allowed action.');
-      card.remove().catch(next);
-      res.send({ data: card });
+      card.remove().then((data) => res.send({ data })).catch(next);
     })
     .catch(next);
 };
