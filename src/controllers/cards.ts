@@ -21,10 +21,11 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
 export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
   const { _id } = req.user as JwtPayload;
 
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) throw new NotFoundError('requested id not found.');
       if (card.owner.valueOf() !== _id) throw new ForbiddenError('not allowed action.');
+      card.remove().catch(next);
       res.send({ data: card });
     })
     .catch(next);

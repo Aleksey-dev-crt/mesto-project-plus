@@ -8,6 +8,7 @@ import cardsRouter from './routes/cards';
 import errorHandler from './middlewares/error';
 import auth from './middlewares/auth';
 import { requestLogger, errorLogger } from './middlewares/logger';
+import { signinValidator, signupValidator } from './utils/requestValidators';
 
 const { PORT = 3000 } = process.env;
 const app: Application = express();
@@ -23,8 +24,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(requestLogger);
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', signinValidator, login);
+app.post('/signup', signupValidator, createUser);
 
 app.use(auth);
 
